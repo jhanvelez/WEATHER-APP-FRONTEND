@@ -21,3 +21,6 @@ Para instalar la aplicación, sigue estos pasos:
   npm run dev
   ```
 
+## Autor
+
+El autor de este proyecto es @jhanvelez. Puedes encontrar más información sobre él en su [perfil de GitHub](https://github.com/jhanvelez).
