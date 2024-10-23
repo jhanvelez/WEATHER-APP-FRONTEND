@@ -4,6 +4,24 @@ interface WeatherFormProps {
   onSearch: (city: string, country: string) => void;
 }
 
+/**
+ * El componente WeatherForm permite a los usuarios ingresar una ciudad y un código de país.
+ * 
+ * @component
+ * @param {Object} props - El objeto de propiedades.
+ * @param {Function} props.onSearch - Función de devolución de llamada para manejar la acción de búsqueda.
+ * 
+ * @returns {JSX.Element} El componente WeatherForm renderizado.
+ * 
+ * @example
+ * <WeatherForm onSearch={(city, country) => console.log(city, country)} />
+ * 
+ * @remarks
+ * Este componente mantiene un estado interno para las entradas de ciudad y país, y las valida antes de invocar la devolución de llamada onSearch.
+ * 
+ * @typedef {Object} WeatherFormProps
+ * @property {Function} onSearch - Función de devolución de llamada para manejar la acción de búsqueda.
+ */
 const WeatherForm: React.FC<WeatherFormProps> = ({ onSearch }) => {
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
@@ -40,7 +58,7 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ onSearch }) => {
         <div className="relative rounded-md shadow-sm">
           <input
             type="text"
-            placeholder="Ciudad"
+            placeholder="Madrid"
             value={city}
             onChange={(e) => setCity(e.target.value)}
             className="block w-full rounded-md border-0 py-1.5 pl-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -54,7 +72,7 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ onSearch }) => {
         <div className="relative rounded-md shadow-sm">
           <input
             type="text"
-            placeholder="Código del país"
+            placeholder="ES"
             value={country}
             onChange={(e) => setCountry(e.target.value)}
             className="block w-full rounded-md border-0 py-1.5 pl-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
