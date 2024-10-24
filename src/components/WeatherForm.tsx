@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Formik, Form, Field, ErrorMessage, FormikHelpers } from 'formik';
+import * as Yup from 'yup';
 
 interface WeatherFormProps {
   onSearch: (city: string, country: string) => void;
@@ -23,71 +25,70 @@ interface WeatherFormProps {
  * @property {Function} onSearch - Función de devolución de llamada para manejar la acción de búsqueda.
  */
 const WeatherForm: React.FC<WeatherFormProps> = ({ onSearch }) => {
-  const [city, setCity] = useState('');
-  const [country, setCountry] = useState('');
-  const [errors, setErrors] = useState({ city: '', country: '' });
+  const initialValues = {
+    city: '',
+    country: '',
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    let valid = true;
-    const newErrors = { city: '', country: '' };
+  const validationSchema = Yup.object({
+    city: Yup.string().required('La ciudad es requerida'),
+    country: Yup.string().required('El código del país es requerido'),
+  });
 
-    if (!city) {
-      newErrors.city = '¡La ciudad es requerida!';
-      valid = false;
-    }
-
-    if (!country) {
-      newErrors.country = '¡El código del país es requerido!';
-      valid = false;
-    }
-
-    setErrors(newErrors);
-
-    if (valid) {
-      onSearch(city, country);
-    }
+  const handleSubmit = async (
+    values: { city: string; country: string },
+    { setSubmitting, resetForm }: FormikHelpers<{ city: string; country: string }>
+  ) => {
+    await onSearch(values.city, values.country);
+    setSubmitting(false);
+    resetForm();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-6 p-4">
-    <h2 className="text-xl font-semibold mb-4">Ingresa Ciudad y Código del País</h2>
-    <div className="flex space-x-4">
-      <div>
-        <label className="block text-sm font-medium leading-6 text-gray-900">Ciudad</label>
-        <div className="relative rounded-md shadow-sm">
-          <input
-            type="text"
-            placeholder="Madrid"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="block w-full rounded-md border-0 py-1.5 pl-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-          />
-        </div>
-        {errors.city && <p className="text-red text-sm mt-1">{errors.city}</p>}
-      </div>
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+    >
+      {({ isSubmitting }) => (
+        <Form className="flex flex-col items-center space-y-6 p-4">
+          <h2 className="text-xl font-semibold mb-4">Ingresa Ciudad y Código del País</h2>
+          <div className="flex space-x-4">
+            <div>
+              <label className="block text-sm font-medium leading-6 text-gray-900">Ciudad</label>
+              <div className="relative rounded-md shadow-sm">
+                <Field
+                  type="text"
+                  name="city"
+                  placeholder="Madrid"
+                  className="block w-full rounded-md border-0 py-1.5 pl-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+              </div>
+              <ErrorMessage name="city" component="p" className="text-red-500 text-sm mt-1" />
+            </div>
 
-      <div>
-        <label className="block text-sm font-medium leading-6 text-gray-900">Codigo del país</label>
-        <div className="relative rounded-md shadow-sm">
-          <input
-            type="text"
-            placeholder="ES"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            className="block w-full rounded-md border-0 py-1.5 pl-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-          />
-        </div>
-        {errors.country && <p className="text-red text-sm mt-1">{errors.country}</p>}
-      </div>
+            <div>
+              <label className="block text-sm font-medium leading-6 text-gray-900">Código del país</label>
+              <div className="relative rounded-md shadow-sm">
+                <Field
+                  type="text"
+                  name="country"
+                  placeholder="ES"
+                  className="block w-full rounded-md border-0 py-1.5 pl-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+              </div>
+              <ErrorMessage name="country" component="p" className="text-red-500 text-sm mt-1" />
+            </div>
+          </div>
 
-      <div className='pt-6'>
-        <button type="submit" className="inline-flex rounded bg-primary py-2 px-3 text-sm font-medium text-white hover:bg-opacity-90">
-          Preciona para buscar
-        </button>
-      </div>
-    </div>
-  </form>
+          <div className='pt-6'>
+            <button type="submit" className="inline-flex rounded bg-primary py-2 px-3 text-sm font-medium text-white hover:bg-opacity-90" disabled={isSubmitting}>
+              Presiona para buscar
+            </button>
+          </div>
+        </Form>
+      )}
+    </Formik>
   );
 };
 
