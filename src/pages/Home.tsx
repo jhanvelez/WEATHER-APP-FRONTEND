@@ -8,13 +8,13 @@ import WeatherDisplay from '../components/WeatherDisplay';
 import ForecastDisplay from '../components/ForecastDisplay';
 import PromptSearch from '../components/PromptSearch';
 import NoData from '../components/NoData';
-
+import Loading from '../components/Loading';
 
 const Home: React.FC = () => {
   const dispatch = useDispatch();
   const [hasError, setHasError] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
 
   // Obtiene el clima actual y el pronóstico del store
   const currentWeather = useSelector((state: RootState) => state.weather.current);
@@ -24,6 +24,7 @@ const Home: React.FC = () => {
   const handleSearch = async (city: string, country: string) => {
     setHasError(false); // Restablece el estado de error
     setHasSearched(true); // Establece que se ha realizado una búsqueda
+    setIsLoading(true); // Establece el estado de carga en verdadero
     try {
       const data = await fetchCurrentWeather(city, country);
 
@@ -41,6 +42,8 @@ const Home: React.FC = () => {
     } catch (error) {
       console.error('Error fetching weather data:', error);
       setHasError(true);
+    } finally {
+      setIsLoading(false); // Set loading state to false after search completes
     }
   };
 
@@ -54,8 +57,10 @@ const Home: React.FC = () => {
 
       {/* Componente para mostrar el clima actual */}
       <div className="container mx-auto p-4">
-      {!hasSearched ? (
+        {!hasSearched ? (
           <PromptSearch />
+        ) : isLoading ? (
+          <Loading />
         ) : hasError ? (
           <NoData />
         ) : (
