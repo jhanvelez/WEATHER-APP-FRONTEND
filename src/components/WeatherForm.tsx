@@ -79,12 +79,12 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ onSearch }) => {
               </div>
               <ErrorMessage name="country" component="p" className="text-red-500 text-sm mt-1" />
             </div>
-          </div>
 
-          <div className='pt-6'>
-            <button type="submit" className="inline-flex rounded bg-primary py-2 px-3 text-sm font-medium text-white hover:bg-opacity-90" disabled={isSubmitting}>
-              Presiona para buscar
-            </button>
+            <div className='pt-6'>
+              <button type="submit" className="inline-flex rounded bg-primary py-2 px-3 text-sm font-medium text-white hover:bg-opacity-90" disabled={isSubmitting}>
+                Presiona para buscar
+              </button>
+            </div>
           </div>
         </Form>
       )}
