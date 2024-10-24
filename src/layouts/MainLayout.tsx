@@ -1,7 +1,9 @@
-import React, { PropsWithChildren } from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import Home from '../pages/Home';
+import React, { PropsWithChildren, Suspense, lazy } from 'react';
+
+// Lazy load components
+const Header = lazy(() => import('../components/Header'));
+const Footer = lazy(() => import('../components/Footer'));
+const Home = lazy(() => import('../pages/Home'));
 
 /**
  * Componente MainLayout que sirve como el diseño principal para la aplicación.
@@ -19,11 +21,17 @@ import Home from '../pages/Home';
  */
 const MainLayout: React.FC<PropsWithChildren<unknown>> = () => (
   <div className="flex flex-col min-h-screen dark:bg-boxdark-2 dark:text-bodydark">
-    <Header />
+    <Suspense fallback={<div>Loading...</div>}>
+      <Header />
+    </Suspense>
     <main className="flex-grow container mx-auto p-4">
-      <Home />
+      <Suspense fallback={<div>Loading...</div>}>
+        <Home />
+      </Suspense>
     </main>
-    <Footer />
+    <Suspense fallback={<div>Loading...</div>}>
+      <Footer />
+    </Suspense>
   </div>
 );
 

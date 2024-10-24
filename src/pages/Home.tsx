@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { setCurrentWeather, setForecast } from '../store/weatherSlice';
 import { fetchCurrentWeather, fetchForecastWeather  } from '../api/weatherApi';
 import WeatherForm from '../components/WeatherForm';
-import WeatherDisplay from '../components/WeatherDisplay';
-import ForecastDisplay from '../components/ForecastDisplay';
-import PromptSearch from '../components/PromptSearch';
-import NoData from '../components/NoData';
-import Loading from '../components/Loading';
+
+// Lazy load components
+const WeatherDisplay = lazy(() => import('../components/WeatherDisplay'));
+const ForecastDisplay = lazy(() => import('../components/ForecastDisplay'));
+const NoData = lazy(() => import('../components/NoData'));
+const PromptSearch = lazy(() => import('../components/PromptSearch'));
+const Loading = lazy(() => import('../components/Loading'));
 
 const Home: React.FC = () => {
   const dispatch = useDispatch();
@@ -47,6 +49,25 @@ const Home: React.FC = () => {
     }
   };
 
+  // Memoriza el contenido a mostrar basado en el estado de la búsqueda
+  const content = useMemo(() => {
+    if (!hasSearched) {
+      return <PromptSearch />;
+    }
+    if (isLoading) {
+      return <Loading />;
+    }
+    if (hasError) {
+      return <NoData />;
+    }
+    return (
+      <>
+        {currentWeather && <WeatherDisplay weather={currentWeather} />}
+        {forecast && <ForecastDisplay forecast={forecast} />}
+      </>
+    );
+  }, [hasSearched, isLoading, hasError, currentWeather, forecast]);
+
   return (
     <div>
       {/* Componente de formulario para buscar el clima */}
@@ -57,18 +78,9 @@ const Home: React.FC = () => {
 
       {/* Componente para mostrar el clima actual */}
       <div className="container mx-auto p-4">
-        {!hasSearched ? (
-          <PromptSearch />
-        ) : isLoading ? (
-          <Loading />
-        ) : hasError ? (
-          <NoData />
-        ) : (
-          <>
-            {currentWeather && <WeatherDisplay weather={currentWeather} />}
-            {forecast && <ForecastDisplay forecast={forecast} />}
-          </>
-        )}
+        <Suspense fallback={<div>Loading...</div>}>
+          {content}
+        </Suspense>
       </div>
     </div>
   );

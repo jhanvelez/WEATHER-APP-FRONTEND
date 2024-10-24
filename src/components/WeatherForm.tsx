@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Formik, Form, Field, ErrorMessage, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 
@@ -25,23 +25,28 @@ interface WeatherFormProps {
  * @property {Function} onSearch - Función de devolución de llamada para manejar la acción de búsqueda.
  */
 const WeatherForm: React.FC<WeatherFormProps> = ({ onSearch }) => {
-  const initialValues = {
+  const initialValues = useMemo(() => ({
     city: '',
     country: '',
-  };
+  }), []);
 
-  const validationSchema = Yup.object({
+  const validationSchema = useMemo(() => Yup.object({
     city: Yup.string().required('La ciudad es requerida'),
     country: Yup.string().required('El código del país es requerido'),
-  });
+  }), []);
 
   const handleSubmit = async (
     values: { city: string; country: string },
     { setSubmitting, resetForm }: FormikHelpers<{ city: string; country: string }>
   ) => {
-    await onSearch(values.city, values.country);
-    setSubmitting(false);
-    resetForm();
+    try {
+      await onSearch(values.city, values.country);
+    } catch (error) {
+      console.error('Error during search:', error);
+    } finally {
+      setSubmitting(false);
+      resetForm();
+    }
   };
 
   return (
@@ -55,10 +60,11 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ onSearch }) => {
           <h2 className="text-xl font-semibold mb-4">Ingresa Ciudad y Código del País</h2>
           <div className="flex space-x-4">
             <div>
-              <label className="block text-sm font-medium leading-6 text-gray-900">Ciudad</label>
+              <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">Ciudad</label>
               <div className="relative rounded-md shadow-sm">
                 <Field
                   type="text"
+                  id="city"
                   name="city"
                   placeholder="Madrid"
                   className="block w-full rounded-md border-0 py-1.5 pl-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -68,10 +74,11 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ onSearch }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium leading-6 text-gray-900">Código del país</label>
+              <label htmlFor="country" className="block text-sm font-medium leading-6 text-gray-900">Código del país</label>
               <div className="relative rounded-md shadow-sm">
                 <Field
                   type="text"
+                  id="country"
                   name="country"
                   placeholder="ES"
                   className="block w-full rounded-md border-0 py-1.5 pl-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -79,12 +86,12 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ onSearch }) => {
               </div>
               <ErrorMessage name="country" component="p" className="text-red-500 text-sm mt-1" />
             </div>
+          </div>
 
-            <div className='pt-6'>
-              <button type="submit" className="inline-flex rounded bg-primary py-2 px-3 text-sm font-medium text-white hover:bg-opacity-90" disabled={isSubmitting}>
-                Presiona para buscar
-              </button>
-            </div>
+          <div className='pt-6'>
+            <button type="submit" className="inline-flex rounded bg-primary py-2 px-3 text-sm font-medium text-white hover:bg-opacity-90" disabled={isSubmitting}>
+              Presiona para buscar
+            </button>
           </div>
         </Form>
       )}
