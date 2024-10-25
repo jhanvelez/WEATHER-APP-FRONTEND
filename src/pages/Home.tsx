@@ -1,9 +1,10 @@
-import React, { useState, Suspense, lazy, useMemo } from 'react';
+import React, { useState, Suspense, lazy, useMemo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { setCurrentWeather, setForecast } from '../store/weatherSlice';
-import { fetchCurrentWeather, fetchForecastWeather  } from '../api/weatherApi';
+import { fetchCurrentWeather, fetchForecastWeather } from '../api/weatherApi';
 import WeatherForm from '../components/WeatherForm';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 // Lazy load components
 const WeatherDisplay = lazy(() => import('../components/WeatherDisplay'));
@@ -23,7 +24,7 @@ const Home: React.FC = () => {
   const forecast = useSelector((state: RootState) => state.weather.forecast);
 
   // Maneja la búsqueda del clima para una ciudad y país específicos
-  const handleSearch = async (city: string, country: string) => {
+  const handleSearch = useCallback(async (city: string, country: string) => {
     setHasError(false); // Restablece el estado de error
     setHasSearched(true); // Establece que se ha realizado una búsqueda
     setIsLoading(true); // Establece el estado de carga en verdadero
@@ -38,16 +39,16 @@ const Home: React.FC = () => {
       // Despacha la acción para establecer el clima actual en el store
       dispatch(setCurrentWeather(data.data));
 
-      const forecast = await fetchForecastWeather(city, country);
+      const forecastData = await fetchForecastWeather(city, country);
       // Despacha la acción para establecer el pronóstico en el store
-      dispatch(setForecast(forecast.data));
+      dispatch(setForecast(forecastData.data));
     } catch (error) {
       console.error('Error fetching weather data:', error);
       setHasError(true);
     } finally {
       setIsLoading(false); // Set loading state to false after search completes
     }
-  };
+  }, [dispatch]);
 
   // Memoriza el contenido a mostrar basado en el estado de la búsqueda
   const content = useMemo(() => {
@@ -69,7 +70,7 @@ const Home: React.FC = () => {
   }, [hasSearched, isLoading, hasError, currentWeather, forecast]);
 
   return (
-    <div>
+    <>
       {/* Componente de formulario para buscar el clima */}
       <WeatherForm onSearch={handleSearch} />
   
@@ -78,11 +79,13 @@ const Home: React.FC = () => {
 
       {/* Componente para mostrar el clima actual */}
       <div className="container mx-auto p-4">
-        <Suspense fallback={<div>Loading...</div>}>
-          {content}
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<div>Loading...</div>}>
+            {content}
+          </Suspense>
+        </ErrorBoundary>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -99,4 +99,4 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ onSearch }) => {
   );
 };
 
-export default WeatherForm;
+export default React.memo(WeatherForm);

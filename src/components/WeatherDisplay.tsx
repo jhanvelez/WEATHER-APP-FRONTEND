@@ -96,4 +96,4 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ weather }) => {
   );
 };
 
-export default WeatherDisplay;
+export default React.memo(WeatherDisplay);

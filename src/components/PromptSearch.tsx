@@ -9,4 +9,4 @@ const PromptSearch: React.FC = () => {
   );
 };
 
-export default PromptSearch;
+export default React.memo(PromptSearch);

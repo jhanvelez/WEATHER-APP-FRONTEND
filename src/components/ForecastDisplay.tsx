@@ -70,4 +70,4 @@ const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ forecast }) => {
   );
 };
 
-export default ForecastDisplay;
+export default React.memo(ForecastDisplay);

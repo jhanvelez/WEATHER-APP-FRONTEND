@@ -9,4 +9,4 @@ const NoData: React.FC = () => {
   );
 };
 
-export default NoData;
+export default React.memo(NoData);
