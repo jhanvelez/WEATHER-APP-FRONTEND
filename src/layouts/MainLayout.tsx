@@ -21,15 +21,15 @@ const Home = lazy(() => import('../pages/Home'));
  */
 const MainLayout: React.FC<PropsWithChildren<unknown>> = () => (
   <div className="flex flex-col min-h-screen dark:bg-boxdark-2 dark:text-bodydark">
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div>Cargando...</div>}>
       <Header />
     </Suspense>
     <main className="flex-grow container mx-auto p-4">
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>Cargando...</div>}>
         <Home />
       </Suspense>
     </main>
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div>Cargando...</div>}>
       <Footer />
     </Suspense>
   </div>

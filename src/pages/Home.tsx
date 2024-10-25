@@ -1,10 +1,10 @@
-import React, { useState, Suspense, lazy, useMemo, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../store';
+import React, { Suspense, lazy, useMemo, useCallback, useReducer } from 'react';
+import { useDispatch } from 'react-redux';
 import { setCurrentWeather, setForecast } from '../store/weatherSlice';
 import { fetchCurrentWeather, fetchForecastWeather } from '../api/weatherApi';
 import WeatherForm from '../components/WeatherForm';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { weatherReducer, initialState } from '../reducers/weatherReducer';
 
 // Lazy load components
 const WeatherDisplay = lazy(() => import('../components/WeatherDisplay'));
@@ -15,24 +15,19 @@ const Loading = lazy(() => import('../components/Loading'));
 
 const Home: React.FC = () => {
   const dispatch = useDispatch();
-  const [hasError, setHasError] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [state, localDispatch] = useReducer(weatherReducer, initialState);
 
-  // Obtiene el clima actual y el pronóstico del store
-  const currentWeather = useSelector((state: RootState) => state.weather.current);
-  const forecast = useSelector((state: RootState) => state.weather.forecast);
+  const { hasError, hasSearched, isLoading, currentWeather, forecast } = state;
 
   // Maneja la búsqueda del clima para una ciudad y país específicos
   const handleSearch = useCallback(async (city: string, country: string) => {
-    setHasError(false); // Restablece el estado de error
-    setHasSearched(true); // Establece que se ha realizado una búsqueda
-    setIsLoading(true); // Establece el estado de carga en verdadero
+    localDispatch({ type: 'SEARCH_INIT' });
+
     try {
       const data = await fetchCurrentWeather(city, country);
 
       if (data.status === 500) {
-        setHasError(true);
+        localDispatch({ type: 'SEARCH_FAILURE' });
         return;
       }
 
@@ -42,11 +37,14 @@ const Home: React.FC = () => {
       const forecastData = await fetchForecastWeather(city, country);
       // Despacha la acción para establecer el pronóstico en el store
       dispatch(setForecast(forecastData.data));
+
+      localDispatch({
+        type: 'SEARCH_SUCCESS',
+        payload: { currentWeather: data.data, forecast: forecastData.data },
+      });
     } catch (error) {
       console.error('Error fetching weather data:', error);
-      setHasError(true);
-    } finally {
-      setIsLoading(false); // Set loading state to false after search completes
+      localDispatch({ type: 'SEARCH_FAILURE' });
     }
   }, [dispatch]);
 
@@ -80,7 +78,7 @@ const Home: React.FC = () => {
       {/* Componente para mostrar el clima actual */}
       <div className="container mx-auto p-4">
         <ErrorBoundary>
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<div>Cargando...</div>}>
             {content}
           </Suspense>
         </ErrorBoundary>
