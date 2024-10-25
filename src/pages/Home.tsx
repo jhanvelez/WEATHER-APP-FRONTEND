@@ -2,16 +2,16 @@ import React, { Suspense, lazy, useMemo, useCallback, useReducer } from 'react';
 import { useDispatch } from 'react-redux';
 import { setCurrentWeather, setForecast } from '../store/weatherSlice';
 import { fetchCurrentWeather, fetchForecastWeather } from '../api/weatherApi';
-import WeatherForm from '../components/WeatherForm';
-import ErrorBoundary from '../components/ErrorBoundary';
 import { weatherReducer, initialState } from '../reducers/weatherReducer';
 
 // Lazy load components
+const WeatherForm = lazy(() => import('../components/WeatherForm'));
 const WeatherDisplay = lazy(() => import('../components/WeatherDisplay'));
 const ForecastDisplay = lazy(() => import('../components/ForecastDisplay'));
 const NoData = lazy(() => import('../components/NoData'));
 const PromptSearch = lazy(() => import('../components/PromptSearch'));
 const Loading = lazy(() => import('../components/Loading'));
+const ErrorBoundary = lazy(() => import('../components/ErrorBoundary'));
 
 const Home: React.FC = () => {
   const dispatch = useDispatch();
